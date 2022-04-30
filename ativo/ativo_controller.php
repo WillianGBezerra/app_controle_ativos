@@ -19,9 +19,10 @@
 	$placa = new Ativo();
 	$chassi = new Ativo();
 	$empresa_id = new Ativo();
+	$categoria_id = new Ativo();
 	$bloqueio = new Ativo();
 	$conexao = new Conexao();
-	$ativoService = new AtivoService($conexao, $ativo, $descricao, $eam, $placa, $chassi, $empresa_id, $bloqueio);
+	$ativoService = new AtivoService($conexao, $ativo, $descricao, $eam, $placa, $chassi, $empresa_id, $categoria_id, $bloqueio);
 	
 	$total_registros = $ativoService->recuperartotal();
 	
@@ -54,7 +55,7 @@
 	}*/
 	/*echo '<pre>';
 	print_r($total_em_tela);
-	echo '</pre>';*/
+	echo '</pre>';*/ 
 	$acao5 = isset($_GET['acao5']) ? $_GET['acao5'] : $acao5;
 
 	if ( $acao5 =='inserir') {
@@ -71,8 +72,9 @@
 		$chassi->__set('chassi', $_POST['chassi']);
 		$bloqueio->__set('bloqueio', 1);
 		$empresa_id->__set('empresa_id', $_POST['empresa_id']);
+		$categoria_id->__set('categoria_id', $_POST['categoria_id']);
 		$conexao = new Conexao();
-		$ativoService = new AtivoService($conexao, $ativo, $descricao, $eam, $placa, $chassi, $empresa_id, $bloqueio);
+		$ativoService = new AtivoService($conexao, $ativo, $descricao, $eam, $placa, $chassi, $empresa_id, $categoria_id, $bloqueio);
 		$ativoService->inserir();
 
 		header('location: ../obj/ativo.php?inclusao=1');
@@ -84,8 +86,9 @@
 		$placa = new Ativo();
 		$chassi = new Ativo();
 		$empresa_id = new Ativo();
+		$categoria_id = new Ativo();
 		$conexao = new Conexao();
-		$ativoService = new AtivoService($conexao, $ativo, $descricao, $eam, $placa, $chassi, $empresa_id, $bloqueio);
+		$ativoService = new AtivoService($conexao, $ativo, $descricao, $eam, $placa, $chassi, $empresa_id, $categoria_id, $bloqueio);
 		$ativos = $ativoService->recuperar($itens_por_pagina, $deslocamento);
 		
 
@@ -96,15 +99,16 @@
 		$placa = new Ativo();
 		$chassi = new Ativo();
 		$empresa_id = new Ativo();
+		$categoria_id = new Ativo();
 		$conexao = new Conexao();
-		$ativoService = new AtivoService($conexao, $ativo, $descricao, $eam, $placa, $chassi, $empresa_id, $bloqueio);
+		$ativoService = new AtivoService($conexao, $ativo, $descricao, $eam, $placa, $chassi, $empresa_id, $categoria_id, $bloqueio);
 		$ativos = $ativoService->recuperar2();
 		/*echo '<pre>';
 		print_r($ativos);
 		echo '</pre>';*/
 	} else if ($acao5 == 'recuperarPorEmpresa') {
 		$txtid = $_GET['txtid']; 
-		$ativoService = new AtivoService($conexao, $ativo, $descricao, $eam, $placa, $chassi, $empresa_id, $bloqueio);
+		$ativoService = new AtivoService($conexao, $ativo, $descricao, $eam, $placa, $chassi, $empresa_id, $categoria_id, $bloqueio);
 		$ativos = $ativoService->recuperarPorEmpresa($itens_por_pagina, $deslocamento, $txtid);
 	} else if ($acao5 == 'recuperarColuna') {
 
@@ -128,8 +132,12 @@
 			$coluna = 'e.nome_fantasia';
 			$conteudo = "'%".$termo."%'";
 		}
-		$ativoService = new AtivoService($conexao, $ativo, $descricao, $eam, $placa, $chassi, $empresa_id, $bloqueio);
-		$ativos = $ativoService->recuperarPorColuna($itens_por_pagina, $deslocamento, $coluna, $conteudo);
+		else if($Selected == 7) {
+			$coluna = 'cat.categoria';
+			$conteudo = "'%".$termo."%'";
+		}
+		$ativoService = new AtivoService($conexao, $ativo, $descricao, $eam, $placa, $chassi, $empresa_id, $categoria_id, $bloqueio);
+		$ativos = $ativoService->recuperarPorColuna($coluna, $conteudo);
 
 		
 	} else if($acao5 == 'atualizar') {
@@ -141,6 +149,7 @@
 		$placa = new Ativo();
 		$chassi = new Ativo();
 		$empresa_id = new Ativo();
+		$categoria_id = new Ativo();
 
 		$id->__set('id', $_POST['id']);
 		$ativo->__set('ativo', $_POST['ativo']);
@@ -149,10 +158,11 @@
 		$placa->__set('placa', $_POST['placa']);
 		$chassi->__set('chassi', $_POST['chassi']);
 		$empresa_id->__set('empresa_id', $_POST['empresa_id']);
+		$categoria_id->__set('categoria_id', $_POST['categoria_id']);
 		$bloqueio->__set('bloqueio', $_POST['bloqueio']);
 		$conexao = new Conexao();
 
-		$ativoService = new AtivoService($conexao, $ativo, $descricao, $eam, $placa, $chassi, $empresa_id, $bloqueio);
+		$ativoService = new AtivoService($conexao, $ativo, $descricao, $eam, $placa, $chassi, $empresa_id, $categoria_id, $bloqueio);
 		
 		if($ativoService->atualizar()) {
 			header('location: ../obj/todos.ativos.php?pagina=1');
@@ -177,7 +187,7 @@
 					$placa = new Ativo();
 					$chassi = new Ativo();
 					$empresa_id = new Ativo();
-					
+					$categoria_id = new Ativo();
 
 					$ativo->__set('ativo', $linha->getElementsByTagName("Data")->Item(0)->nodeValue);
 					$descricao->__set('descricao', $linha->getElementsByTagName("Data")->Item(1)->nodeValue);
@@ -185,10 +195,10 @@
 					$placa->__set('placa', $linha->getElementsByTagName("Data")->Item(3)->nodeValue);
 					$chassi->__set('chassi', $linha->getElementsByTagName("Data")->Item(4)->nodeValue);
 					$empresa_id->__set('empresa_id', $linha->getElementsByTagName("Data")->Item(5)->nodeValue);
-					
+					$categoria_id->__set('categoria_id', $linha->getElementsByTagName("Data")->Item(6)->nodeValue);
 
 					$conexao = new Conexao();
-					$ativoService = new AtivoService($conexao, $ativo, $descricao, $eam, $placa, $chassi, $empresa_id, $bloqueio);
+					$ativoService = new AtivoService($conexao, $ativo, $descricao, $eam, $placa, $chassi, $empresa_id, $categoria_id, $bloqueio);
 					$ativoService->inserir();
 				}
 				$primeira_linha = false;
@@ -226,9 +236,10 @@
 			$placa = new Ativo();
 			$chassi = new Ativo();
 			$empresa_id = new Ativo();
+			$categoria_id = new Ativo();
 			$id->__set('id',$_GET['id']);
 			$conexao = new Conexao();
-			$ativoService = new AtivoService($conexao, $ativo, $descricao, $eam, $placa, $chassi, $empresa_id, $bloqueio);
+			$ativoService = new AtivoService($conexao, $ativo, $descricao, $eam, $placa, $chassi, $empresa_id, $categoria_id, $bloqueio);
 			$ativoService->remover();
 			header('location: ../obj/todos.ativos.php?pagina=1&delete=success&id='.$_GET['id']);
 		}

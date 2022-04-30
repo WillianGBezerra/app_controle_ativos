@@ -16,6 +16,7 @@
 
 	$opfiscal_id = new Remessa();
 	$notafiscal = new Remessa();
+	$chave_nfe_remessa = new Remessa();
 	$valor = new Remessa();
 	$emissao = new Remessa();
 	$entrada = new Remessa();
@@ -25,7 +26,7 @@
 	$destino_id = new Remessa();
 	$status_id = new Remessa();
 	$conexao = new Conexao();
-	$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
+	$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $chave_nfe_remessa, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
  
 	 
 	
@@ -40,17 +41,18 @@
 		if ($pesqData == 0 || $pesqData == 1) { $coluna = 'tb_remessa.emissao';
 		}  else if ($pesqData == 2) { $coluna = 'tb_remessa.retorno';}
 		$total_registros = $remessaService->recuperartotalbydate($coluna, $data_inicial, $data_final);
-	} else if ($acao8 == 'recuperarbynfe') {
-		$total_registros = $remessaService->recuperartotalbynfe($nfe);
-	} else if ($acao8 == 'recuperarPorAtivo') {
+	} else if ($acao8 == 'recuperarCol') {
 		$total_registros = $remessaService->recuperartotal(); 
 	}
 
+	/*echo '<pre>';
+	print_r($_POST);
+	echo '</pre>';*/
 
 	
-	/*echo '<pre>';
-	print_r($numero_paginas);
-	echo '</pre>';*/
+	// echo '<pre>';
+	// print_r($_POST['chave_nfe_remessa']);
+	// echo '</pre>';
 	
 
 	//$pesqPorcamposTabel = isset($_POST['pesqPorcamposTabel']) ? $_POST['pesqPorcamposTabel'] : $pesqPorcamposTabel;
@@ -131,6 +133,7 @@
 
 		$opfiscal_id = new Remessa();
 		$notafiscal = new Remessa();
+		$chave_nfe_remessa = new Remessa();
 		$valor = new Remessa();
 		$emissao = new Remessa();
 		$entrada = new Remessa();
@@ -142,6 +145,7 @@
 
 		$opfiscal_id->__set('opfiscal_id', $_POST['opfiscal_id']);
 		$notafiscal->__set('notafiscal', $_POST['notafiscal']);
+		$chave_nfe_remessa->__set('chave_nfe_remessa', $_POST['chave_nfe_remessa']);
 		$valor->__set('valor', $_POST['valor']);
 		$emissao->__set('emissao', $_POST['emissao']);
 		$entrada->__set('entrada', $_POST['entrada']);
@@ -156,10 +160,10 @@
 		echo '</pre>';*/
 
 		if ($origem_id == $destino_id) {
-			header('location: ../obj/remessa.php?error=1');
+			//header('location: ../obj/remessa.php?error=1');
 		} else if ($origem_id != $destino_id) {
 			$conexao = new Conexao();
-			$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
+			$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $chave_nfe_remessa, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
 			$remessaService->inserir();
  
 			$a_id = new Ativo();
@@ -171,7 +175,7 @@
 			$ativoServiceBloqueio = new AtivoServiceBloqueio($conexao, $bloqueio);
 			$ativoServiceBloqueio->bloqueio();
 
-			header('location: ../obj/remessa.php?inclusao=1');
+			//header('location: ../obj/remessa.php?inclusao=1');
 		}
 	} else if ($acao8 =='uploadExcel') {
 		//Verifica se o usuario selecionou um arquivo xml
@@ -189,6 +193,7 @@
 				if($primeira_linha == false){
 					$opfiscal_id = new Remessa();
 					$notafiscal = new Remessa();
+					$chave_nfe_remessa = new Remessa();
 					$valor = new Remessa();
 					$emissao = new Remessa();
 					$entrada = new Remessa();
@@ -208,10 +213,11 @@
 					$origem_id->__set('origem_id', $linha->getElementsByTagName("Data")->Item(7)->nodeValue);
 					$destino_id->__set('destino_id', $linha->getElementsByTagName("Data")->Item(8)->nodeValue);
 					$status_id->__set('status_id', $linha->getElementsByTagName("Data")->Item(9)->nodeValue);
+					$chave_nfe_remessa->__set('chave_nfe_remessa', $linha->getElementsByTagName("Data")->Item(10)->nodeValue);
 					
 
 					$conexao = new Conexao();
-					$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
+					$remessaService = new RemessaService($conexao, $opfiscal_id, $chave_nfe_remessa, $notafiscal, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
 					$remessaService->inserir();
 				}
 				$primeira_linha = false;
@@ -221,6 +227,7 @@
 	} else if ($acao8 == 'recuperar') {  
 		$opfiscal_id = new Remessa();
 		$notafiscal = new Remessa();
+		$chave_nfe_remessa = new Remessa();
 		$valor = new Remessa();
 		$emissao = new Remessa();
 		$entrada = new Remessa();
@@ -230,7 +237,7 @@
 		$destino_id = new Remessa();
 		$status_id = new Remessa();
 		$conexao = new Conexao();
-		$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
+		$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $chave_nfe_remessa, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
 		$remessas = $remessaService->recuperar($itens_por_pagina, $deslocamento);
 		/*echo '<pre>';
 		print_r($remessas);
@@ -238,6 +245,7 @@
 	} else if ($acao8 == 'recuperarbydate') {
 		$opfiscal_id = new Remessa();
 		$notafiscal = new Remessa();
+		$chave_nfe_remessa = new Remessa();
 		$valor = new Remessa();
 		$emissao = new Remessa();
 		$entrada = new Remessa();
@@ -254,13 +262,14 @@
 			$coluna = 'r.retorno';
 		}
 
-		$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
+		$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $chave_nfe_remessa, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
 		$remessas = $remessaService->recuperarbydate($itens_por_pagina, $deslocamento, $coluna, $data_inicial, $data_final);
 		
 		
 	} else if ($acao8 == 'recuperarbynfe') {
 		$opfiscal_id = new Remessa();
 		$notafiscal = new Remessa();
+		$chave_nfe_remessa = new Remessa();
 		$valor = new Remessa();
 		$emissao = new Remessa();
 		$entrada = new Remessa();
@@ -270,9 +279,9 @@
 		$destino_id = new Remessa();
 		$status_id = new Remessa();
 		$conexao = new Conexao();
-		$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
+		$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $chave_nfe_remessa, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
 		$remessas = $remessaService->recuperarbynfe($nfe);
-	} else if ($acao8 == 'recuperarPorAtivo') {
+	} else if ($acao8 == 'recuperarCol') {
 
 		/*
 		if ($txt_ativoopcao == 1) {
@@ -323,17 +332,20 @@
 		}else if($txt_ativoopcao == 7) {
 			$coluna = 'em.nome_fantasia';
 			$conteudo = "'%".$txt_empresa."%'";
+		}else if($txt_ativoopcao == 8) {
+			$coluna = 'r.notafiscal';
+			$conteudo = "'%".$txt_nferemessa."%'";
 		}
 
-		$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
+		$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $chave_nfe_remessa, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
 		$remessas = $remessaService->recuperarPorColuna($itens_por_pagina, $deslocamento, $coluna, $conteudo);
 			
 	} else if ($acao8 == 'recuperarbyMovStatus') {
 		if ($tipoMov == 1 || $tipoMov == 2) {
-			$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
+			$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $chave_nfe_remessa, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
 			$remessas = $remessaService->recuperarPorMovStatus($tipoMov, $stRegistro);
 		} else if ($tipoMov == 0) {
-			$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
+			$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $chave_nfe_remessa, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
 			$remessas = $remessaService->recuperarTodos($itens_por_pagina, $deslocamento);
 		}
 	}
@@ -341,6 +353,7 @@
 			if ($tipom ==1 ) {
 				$opfiscal_id = new Remessa();
 				$notafiscal = new Remessa();
+				$chave_nfe_remessa = new Remessa();
 				$valor = new Remessa();
 				$emissao = new Remessa();
 				$entrada = new Remessa();
@@ -350,7 +363,7 @@
 				$destino_id = new Remessa();
 				$status_id = new Remessa();
 				$conexao = new Conexao();
-				$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
+				$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $chave_nfe_remessa, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
 				$remessas = $remessaService->recuperarPorMovEeStatus($itens_por_pagina, $deslocamento, $tipom, $st);
 				header('location: ../obj/todas.remessas.php?acao8=recuperarPorMovEStatus&pagina=1&?tipom=$tipom&?st=$st');
 	  		}
@@ -358,6 +371,7 @@
 			If($tipom ==2){
 				$opfiscal_id = new Remessa();
 				$notafiscal = new Remessa();
+				$chave_nfe_remessa = new Remessa();
 				$valor = new Remessa();
 				$emissao = new Remessa();
 				$entrada = new Remessa();
@@ -367,13 +381,14 @@
 				$destino_id = new Remessa();
 				$status_id = new Remessa();
 				$conexao = new Conexao();
-				$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
+				$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $chave_nfe_remessa, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
 				$remessas = $remessaService->recuperarPorMovSeStatus($itens_por_pagina, $deslocamento, $tipom, $st);
 				header('location: ../obj/todas.remessas.php?acao8=recuperarPorMovSeStatus&pagina=1');
 			}
 	} else if ($acao8 == 'recuperarTotalCsv') {
 				$opfiscal_id = new Remessa();
 				$notafiscal = new Remessa();
+				$chave_nfe_remessa = new Remessa();
 				$valor = new Remessa();
 				$emissao = new Remessa();
 				$entrada = new Remessa();
@@ -383,12 +398,13 @@
 				$destino_id = new Remessa();
 				$status_id = new Remessa();
 				$conexao = new Conexao();
-				$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
+				$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $chave_nfe_remessa, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
 				$remessas = $remessaService->recuperarPorMovSeStatus($itens_por_pagina, $deslocamento);
 				header('location: ../obj/todas.remessas.php?acao8=reportcsv&pagina=1');
 	} else if ($acao8 == 'recuperar2') {
 		$opfiscal_id = new Remessa();
 		$notafiscal = new Remessa();
+		$chave_nfe_remessa = new Remessa();
 		$valor = new Remessa();
 		$emissao = new Remessa();
 		$entrada = new Remessa();
@@ -398,11 +414,12 @@
 		$destino_id = new Remessa();
 		$status_id = new Remessa();
 		$conexao = new Conexao();
-		$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
+		$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $chave_nfe_remessa, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
 		$remessas = $remessaService->recuperar2(); 
 	} else if ($acao8 == 'reportpdfEntrada') {
 		$opfiscal_id = new Remessa();
 		$notafiscal = new Remessa();
+		$chave_nfe_remessa = new Remessa();
 		$valor = new Remessa();
 		$emissao = new Remessa();
 		$entrada = new Remessa();
@@ -412,11 +429,12 @@
 		$destino_id = new Remessa();
 		$status_id = new Remessa();
 		$conexao = new Conexao();
-		$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
+		$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $chave_nfe_remessa, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
 		$remessas = $remessaService->reportpdfEntrada($itens_por_pagina, $deslocamento, $tipom, $st);  
 	} else if ($acao8 == 'reportpdfSaida') {
 		$opfiscal_id = new Remessa();
 		$notafiscal = new Remessa();
+		$chave_nfe_remessa = new Remessa();
 		$valor = new Remessa();
 		$emissao = new Remessa();
 		$entrada = new Remessa();
@@ -426,7 +444,7 @@
 		$destino_id = new Remessa();
 		$status_id = new Remessa();
 		$conexao = new Conexao();
-		$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
+		$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $chave_nfe_remessa, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
 		$remessas = $remessaService->reportpdfSaida($itens_por_pagina, $deslocamento, $tipom, $st); 
 		header('location: ../obj/todas.remessas.php?pagina=1&tipom=$tipom&st=$st');
 	} else if($acao8 == 'atualizar') {
@@ -448,8 +466,10 @@
 		$opfiscais = $opfiscalService->prazo();
 		$retorno = date('Y/m/d', strtotime('+'.$opfiscais[0]->prazo.' days', strtotime($_POST['emissao'])));
 		
+		$id = new Remessa();
 		$opfiscal_id = new Remessa();
 		$notafiscal = new Remessa();
+		$chave_nfe_remessa = new Remessa();
 		$valor = new Remessa();
 		$emissao = new Remessa();
 		$entrada = new Remessa();
@@ -458,8 +478,10 @@
 		$origem_id = new Remessa();
 		$destino_id = new Remessa();
 		$status_id = new Remessa();
+		$id->__set('id', $_POST['id']);
 		$opfiscal_id->__set('opfiscal_id', $_POST['opfiscal_id']);
 		$notafiscal->__set('notafiscal', $_POST['notafiscal']);
+		$chave_nfe_remessa->__set('chave_nfe_remessa', $_POST['chave_nfe_remessa']);
 		$valor->__set('valor', $_POST['valor']);
 		$emissao->__set('emissao', $_POST['emissao']);
 		$entrada->__set('entrada', $_POST['entrada']);
@@ -471,33 +493,22 @@
 
 		$conexao = new Conexao();
 
-		$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
+		$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $chave_nfe_remessa, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
+		
 		if($remessaService->atualizar()) {
 			$a_id = new Ativo();
 			$bloqueio = new Ativo();
 			$a_id->__set('a_id', $_POST['ativo_id']);
 			$bloqueio->__set('bloqueio', 2); 
 			$conexao = new Conexao();
-
 			$ativoServiceBloqueio = new AtivoServiceBloqueio($conexao, $bloqueio);
 			$ativoServiceBloqueio->bloqueio();
 			header('location: ../obj/todas.remessas.php?pagina=1');
 		}
 	} else if($acao8 == 'remover') {
-
-		
-		
-		$a_id = new Ativo();
-		$bloqueio = new Ativo();
-		$a_id->__set('a_id', $_GET['ativo_id']);
-		$bloqueio->__set('bloqueio', 1); 
-		$conexao = new Conexao();
-
-		$ativoServiceBloqueio = new AtivoServiceBloqueio($conexao, $bloqueio);
-		$ativoServiceBloqueio->desbloqueio();
-
 		$id = new Remessa(); 
 		$opfiscal_id = new Remessa();
+		$chave_nfe_remessa = new Remessa();
 		$notafiscal = new Remessa();
 		$valor = new Remessa();
 		$emissao = new Remessa();
@@ -509,10 +520,19 @@
 		$status_id = new Remessa();
 		$id->__set('id',$_GET['id']);
 		$conexao = new Conexao();
-		$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
-		$remessaService->remover();
+		$remessaService = new RemessaService($conexao, $opfiscal_id, $notafiscal, $chave_nfe_remessa, $valor, $emissao, $entrada, $ativo_id, $retorno, $origem_id, $destino_id, $status_id);
 
-		
-		header('location: ../obj/todas.remessas.php?pagina=1&delete=success&id='.$_GET['id']);
+		if($remessaService->remover()) {
+			$a_id = new Ativo();
+			$bloqueio = new Ativo();
+			$a_id->__set('a_id', $_GET['ativo_id']);
+			$bloqueio->__set('bloqueio', 1); 
+			$conexao = new Conexao();
+
+			$ativoServiceBloqueio = new AtivoServiceBloqueio($conexao, $bloqueio);
+			$ativoServiceBloqueio->desbloqueio();
+
+			header('location: ../obj/todas.remessas.php?pagina=1&delete=success&id='.$_GET['id']);
+		}	
 	}
 ?>

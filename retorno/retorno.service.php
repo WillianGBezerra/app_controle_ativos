@@ -32,7 +32,7 @@
 			return $stmt->fetchAll(PDO::FETCH_OBJ);
 		}
 		public function recuperarPorColuna($coluna, $conteudo) {
-			$query = "select rt.id, rt.nfretorno, rt.emissaoret, rt.remessa_id, rt.observacao,rt.dataRetorno, r.id AS rid, r.notafiscal, r.valor, r.emissao, r.entrada, r.retorno, r.opfiscal_id, op.opdescricao, op.prazo, a.ativo, a.descricao, a.placa, a.eam, a.chassi, e.nome_fantasia AS origem, em.nome_fantasia AS destino FROM tb_retorno rt 
+			$query = "select rt.id, rt.nfretorno, rt.emissaoret, rt.remessa_id, rt.observacao,rt.dataRetorno, r.id AS rid, r.notafiscal, r.valor, r.emissao, r.entrada, r.retorno, r.opfiscal_id, op.opdescricao, op.prazo, a.id AS ativo_id, a.ativo, a.descricao, a.placa, a.eam, a.chassi, e.nome_fantasia AS origem, em.nome_fantasia AS destino FROM tb_retorno rt 
 				INNER JOIN tb_remessa AS r ON rt.remessa_id = r.id
 				INNER JOIN tb_opfiscal AS op ON r.opfiscal_id = op.id
 				INNER JOIN tb_empresa AS e ON r.origem_id = e.id
@@ -44,14 +44,14 @@
 			$stmt->execute();
 			return $stmt->fetchAll(PDO::FETCH_OBJ);
 		}
-		public function recuperarbynfe($nfe) {
+		public function recuperarbynfe($coluna, $nfe) {
 			$query = "select rt.id, rt.nfretorno, rt.emissaoret, rt.remessa_id, rt.observacao,rt.dataRetorno, r.id AS rid, r.notafiscal, r.valor, r.emissao, r.entrada, r.retorno, r.opfiscal_id, op.opdescricao, op.prazo,a.ativo, a.descricao, a.placa, a.eam, a.chassi, e.nome_fantasia AS origem, em.nome_fantasia AS destino FROM tb_retorno rt 
 				INNER JOIN tb_remessa AS r ON rt.remessa_id = r.id
 				INNER JOIN tb_opfiscal AS op ON r.opfiscal_id = op.id
 				INNER JOIN tb_empresa AS e ON r.origem_id = e.id
 	            INNER JOIN tb_empresa AS em ON r.destino_id = em.id
 				INNER JOIN tb_ativo AS a ON r.ativo_id = a.id
-				WHERE r.notafiscal LIKE $nfe
+				WHERE $coluna LIKE $nfe
 				ORDER BY r.emissao, rt.dataRetorno, r.notafiscal, rt.nfretorno, a.ativo, a.descricao";
 			$stmt = $this->conexao->prepare($query);
 			$stmt->execute();

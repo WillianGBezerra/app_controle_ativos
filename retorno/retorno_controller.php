@@ -24,7 +24,7 @@
 	$conexao = new Conexao();
 	$retornoService = new RetornoService($conexao, $nfretorno, $emissaoret,$dataRetorno, $observacao, $remessa_id);
 	$total_registros = $retornoService->recuperartotal();
-	$itens_por_pagina = 9;
+	$itens_por_pagina = 10;
 	$numero_paginas = ceil($total_registros/$itens_por_pagina);
 	$deslocamento = (($pagina - 1)*$itens_por_pagina);
 	$reg_pagina_atual = (($total_registros/$itens_por_pagina)-($pagina-1))*$itens_por_pagina;
@@ -114,7 +114,7 @@
 		$retornoService->remover();
 		
 		header('location: ../obj/todos.retornos.php?pagina=1&delete=success&id='.$_GET['id']);
-	}else if ($acao9 == 'recuperarPorAtivo') {
+	}else if ($acao9 == 'recuperarCol') {
 		if ($txt_ativoopcao == 1) {
 			$coluna = 'a.descricao';
 			$conteudo = "'%".$txt_descricao."%'";
@@ -136,6 +136,12 @@
 		}else if($txt_ativoopcao == 7) {
 			$coluna = 'em.nome_fantasia';
 			$conteudo = "'%".$txt_empresa."%'";
+		}else if($txt_ativoopcao == 8) {
+			$coluna = 'r.notafiscal';
+			$conteudo = "'%".$txt_nferemessa."%'";
+		}else if($txt_ativoopcao == 9) {
+			$coluna = 'rt.nfretorno';
+			$conteudo = "'%".$txt_nfedevolucao."%'";
 		}
 		
 		$retornoService = new RetornoService($conexao, $nfretorno, $emissaoret, $dataRetorno,$observacao,$remessa_id);
@@ -144,14 +150,20 @@
 		if ($pesqData == 0 || $pesqData == 1) {
 			$coluna = 'r.emissao';
 		}  else if ($pesqData == 2) {
-			$coluna = 'rt.dataRetorno';
+			$coluna = 'rt.emissaoret';
 		}
 		$retornoService = new RetornoService($conexao, $nfretorno, $emissaoret, $dataRetorno,$observacao,$remessa_id);
 		$retornos = $retornoService->recuperarbydate($coluna, $data_inicial, $data_final);
+
 	} else if ($acao9 == 'recuperarbynfe') { 
-		
+		if ($pesqnfe == 0 || $pesqnfe == 1) {
+			$coluna = 'r.notafiscal';
+		}  else if ($pesqnfe == 2) {
+			$coluna = 'rt.nfretorno';
+		} 
 		$retornoService = new RetornoService($conexao, $nfretorno, $emissaoret, $dataRetorno,$observacao,$remessa_id);
-		$retornos = $retornoService->recuperarbynfe($nfe);
+		$retornos = $retornoService->recuperarbynfe($coluna, $nfe);
+
 	} else if($acao9 == 'atualizar') {
 		
 		$nfretorno->__set('nfretorno', $_POST['nfretorno']);

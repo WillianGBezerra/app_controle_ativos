@@ -3,6 +3,7 @@ class remessa {
 	private $id;
 	private $opfiscal_id;
 	private $notafiscal;
+	private $chave_nfe_remessa;
 	private $valor;
 	private $emissao;
 	private $entrada;

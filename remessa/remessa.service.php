@@ -5,6 +5,7 @@ class RemessaService {
 	private $conexao;
 	private $opfiscal_id;
 	private $notafiscal;
+	private $chave_nfe_remessa;
 	private $valor;
 	private $emissao;
 	private $entrada;
@@ -14,10 +15,11 @@ class RemessaService {
 	private $destino_id;
 	private $status_id;
 
-	public function __construct(Conexao $conexao, Remessa $opfiscal_id, Remessa $notafiscal, Remessa $valor, Remessa $emissao, Remessa $entrada, Remessa $ativo_id, Remessa $retorno, Remessa $origem_id, Remessa $destino_id, Remessa $status_id) {
+	public function __construct(Conexao $conexao, Remessa $opfiscal_id, Remessa $notafiscal, Remessa $chave_nfe_remessa, Remessa $valor, Remessa $emissao, Remessa $entrada, Remessa $ativo_id, Remessa $retorno, Remessa $origem_id, Remessa $destino_id, Remessa $status_id) {
 		$this->conexao = $conexao->conectar(); 
 		$this->opfiscal_id = $opfiscal_id;
 		$this->notafiscal = $notafiscal;
+		$this->chave_nfe_remessa = $chave_nfe_remessa;
 		$this->valor = $valor;
 		$this->emissao = $emissao;
 		$this->entrada = $entrada;
@@ -30,10 +32,11 @@ class RemessaService {
 	} 
  
 	public function inserir() {
-		$query = 'insert into tb_remessa (opfiscal_id, notafiscal, valor, emissao, entrada, ativo_id, retorno, origem_id, destino_id, status_id)values(:opfiscal_id, :notafiscal, :valor, :emissao, :entrada, :ativo_id, :retorno, :origem_id, :destino_id, :status_id)';
+		$query = 'insert into tb_remessa (opfiscal_id, notafiscal, chave_nfe_remessa, valor, emissao, entrada, ativo_id, retorno, origem_id, destino_id, status_id)values(:opfiscal_id, :notafiscal, :chave_nfe_remessa, :valor, :emissao, :entrada, :ativo_id, :retorno, :origem_id, :destino_id, :status_id)';
 		$stmt = $this->conexao->prepare($query);
 		$stmt->bindValue(':opfiscal_id', $this->opfiscal_id->__get('opfiscal_id'));
 		$stmt->bindValue(':notafiscal', $this->notafiscal->__get('notafiscal'));
+		$stmt->bindValue(':chave_nfe_remessa', $this->chave_nfe_remessa->__get('chave_nfe_remessa'));
 		$stmt->bindValue(':valor', $this->valor->__get('valor'));
 		$stmt->bindValue(':emissao', $this->emissao->__get('emissao'));
 		$stmt->bindValue(':entrada', $this->entrada->__get('entrada'));
@@ -45,7 +48,7 @@ class RemessaService {
 		$stmt->execute();
 	}
 	public function recuperar($limit, $offset) {
-		$query = "select r.id, r.opfiscal_id, op.opdescricao, op.prazo, op.sigla_op_fiscal, r.origem_id, r.destino_id, r.notafiscal, r.valor, r.emissao, r.entrada, r.retorno, r.ativo_id, r.status_id, e.nome_fantasia as origem, em.nome_fantasia as destino, a.id AS idativo, a.descricao, a.placa, a.eam, a.chassi, a.ativo, a.bloqueio, s.status AS status FROM tb_remessa r, tb_opfiscal op, tb_empresa e, tb_empresa em, tb_ativo a, tb_status s WHERE r.status_id = 1 AND r.opfiscal_id = op.id AND r.origem_id = e.id AND r.destino_id = em.id AND r.ativo_id = a.id AND r.status_id = s.id ORDER BY r.retorno, r.notafiscal, r.emissao, a.descricao limit $limit offset $offset";
+		$query = "select r.id, r.opfiscal_id, op.opdescricao, op.prazo, op.sigla_op_fiscal, r.origem_id, r.destino_id, r.notafiscal, r.chave_nfe_remessa, r.valor, r.emissao, r.entrada, r.retorno, r.ativo_id, r.status_id, e.nome_fantasia as origem, em.nome_fantasia as destino, a.id AS idativo, a.descricao, a.placa, a.eam, a.chassi, a.ativo, a.bloqueio, s.status AS status FROM tb_remessa r, tb_opfiscal op, tb_empresa e, tb_empresa em, tb_ativo a, tb_status s WHERE r.status_id = 1 AND r.opfiscal_id = op.id AND r.origem_id = e.id AND r.destino_id = em.id AND r.ativo_id = a.id AND r.status_id = s.id ORDER BY r.retorno, r.notafiscal, r.emissao, a.descricao limit $limit offset $offset";
 		$stmt = $this->conexao->prepare($query);
 		$stmt->execute();
 		return $stmt->fetchAll(PDO::FETCH_OBJ);
@@ -57,19 +60,19 @@ class RemessaService {
 		return $stmt->rowCount();
 	}
 	public function recuperarbydate($limit, $offset, $coluna, $data_inicial, $data_final) {
-		$query = "select r.id, r.opfiscal_id, op.opdescricao, op.prazo, op.sigla_op_fiscal, r.origem_id, r.destino_id, r.notafiscal, r.valor, r.emissao, r.entrada, r.retorno, r.ativo_id, e.nome_fantasia as origem, em.nome_fantasia as destino, a.id AS idativo, a.descricao, a.placa, a.eam, a.chassi, a.ativo, a.bloqueio, s.status AS status FROM tb_remessa r, tb_opfiscal op, tb_empresa e, tb_empresa em, tb_ativo a, tb_status s WHERE $coluna BETWEEN '$data_inicial' AND '$data_final' AND r.status_id = 1 AND r.opfiscal_id = op.id AND r.origem_id = e.id AND r.destino_id = em.id AND r.ativo_id = a.id AND r.status_id = s.id ORDER BY r.retorno, r.notafiscal, r.emissao, a.descricao limit $limit offset $offset";
+		$query = "select r.id, r.opfiscal_id, op.opdescricao, op.prazo, op.sigla_op_fiscal, r.origem_id, r.destino_id, r.notafiscal, r.chave_nfe_remessa, r.valor, r.emissao, r.entrada, r.retorno, r.ativo_id, e.nome_fantasia as origem, em.nome_fantasia as destino, a.id AS idativo, a.descricao, a.placa, a.eam, a.chassi, a.ativo, a.bloqueio, s.status AS status FROM tb_remessa r, tb_opfiscal op, tb_empresa e, tb_empresa em, tb_ativo a, tb_status s WHERE $coluna BETWEEN '$data_inicial' AND '$data_final' AND r.status_id = 1 AND r.opfiscal_id = op.id AND r.origem_id = e.id AND r.destino_id = em.id AND r.ativo_id = a.id AND r.status_id = s.id ORDER BY r.retorno, r.notafiscal, r.emissao, a.descricao limit $limit offset $offset";
 		$stmt = $this->conexao->prepare($query);
 		$stmt->execute();
 		return $stmt->fetchAll(PDO::FETCH_OBJ);
 	}
 	public function recuperarbynfe($nfe) {
-		$query = "select r.id, r.opfiscal_id, op.opdescricao, op.prazo, op.sigla_op_fiscal, r.origem_id, r.destino_id, r.notafiscal, r.valor, r.emissao, r.entrada, r.retorno, r.ativo_id, e.nome_fantasia as origem, em.nome_fantasia as destino, a.id AS idativo, a.descricao, a.placa, a.eam, a.chassi, a.ativo, a.bloqueio, s.status AS status FROM tb_remessa r, tb_opfiscal op, tb_empresa e, tb_empresa em, tb_ativo a, tb_status s WHERE r.notafiscal = $nfe AND r.status_id = 1 AND r.opfiscal_id = op.id AND r.origem_id = e.id AND r.destino_id = em.id AND r.ativo_id = a.id AND r.status_id = s.id ORDER BY r.retorno, r.notafiscal, r.emissao, a.descricao";
+		$query = "select r.id, r.opfiscal_id, op.opdescricao, op.prazo, op.sigla_op_fiscal, r.origem_id, r.destino_id, r.notafiscal, r.chave_nfe_remessa, r.valor, r.emissao, r.entrada, r.retorno, r.ativo_id, e.nome_fantasia as origem, em.nome_fantasia as destino, a.id AS idativo, a.descricao, a.placa, a.eam, a.chassi, a.ativo, a.bloqueio, s.status AS status FROM tb_remessa r, tb_opfiscal op, tb_empresa e, tb_empresa em, tb_ativo a, tb_status s WHERE r.notafiscal = $nfe AND r.status_id = 1 AND r.opfiscal_id = op.id AND r.origem_id = e.id AND r.destino_id = em.id AND r.ativo_id = a.id AND r.status_id = s.id ORDER BY r.retorno, r.notafiscal, r.emissao, a.descricao";
 		$stmt = $this->conexao->prepare($query);
 		$stmt->execute();
 		return $stmt->fetchAll(PDO::FETCH_OBJ);
 	}
 	public function recuperarPorChassi($limit, $offset, $ativo_chassi) {
-		$query = "select r.id, r.opfiscal_id, op.id AS opid, op.opdescricao, op.prazo, op.sigla_op_fiscal, r.origem_id, r.destino_id, r.notafiscal, r.valor, r.emissao, r.entrada, r.retorno, r.ativo_id, e.nome_fantasia as origem, em.nome_fantasia as destino, a.id AS idativo, a.descricao, a.placa, a.eam, a.chassi, a.ativo, s.status AS status, a.bloqueio FROM tb_remessa r  
+		$query = "select r.id, r.opfiscal_id, op.id AS opid, op.opdescricao, op.prazo, op.sigla_op_fiscal, r.origem_id, r.destino_id, r.notafiscal, r.chave_nfe_remessa, r.valor, r.emissao, r.entrada, r.retorno, r.ativo_id, e.nome_fantasia as origem, em.nome_fantasia as destino, a.id AS idativo, a.descricao, a.placa, a.eam, a.chassi, a.ativo, s.status AS status, a.bloqueio FROM tb_remessa r  
 			INNER JOIN tb_status AS s ON r.status_id = s.id
 				INNER JOIN tb_opfiscal AS op ON r.opfiscal_id = op.id
 				INNER JOIN tb_empresa AS e ON r.origem_id = e.id
@@ -84,7 +87,7 @@ class RemessaService {
 	}
 	public function recuperarPorN_Ativo($limit, $offset, $n_ativo) {
 		ini_set('default_charset', 'utf-8');
-		$query = "select r.id, r.opfiscal_id, op.id AS opid, op.opdescricao, op.prazo, op.sigla_op_fiscal, r.origem_id, r.destino_id, r.notafiscal, r.valor, r.emissao, r.entrada, r.retorno, r.ativo_id, e.nome_fantasia as origem, em.nome_fantasia as destino, a.id AS idativo, a.descricao, a.placa, a.eam, a.chassi, a.ativo, s.status AS status FROM tb_remessa r  
+		$query = "select r.id, r.opfiscal_id, op.id AS opid, op.opdescricao, op.prazo, op.sigla_op_fiscal, r.origem_id, r.destino_id, r.notafiscal, r.chave_nfe_remessa, r.valor, r.emissao, r.entrada, r.retorno, r.ativo_id, e.nome_fantasia as origem, em.nome_fantasia as destino, a.id AS idativo, a.descricao, a.placa, a.eam, a.chassi, a.ativo, s.status AS status FROM tb_remessa r  
 			INNER JOIN tb_status AS s ON r.status_id = s.id
 				INNER JOIN tb_opfiscal AS op ON r.opfiscal_id = op.id
 				INNER JOIN tb_empresa AS e ON r.origem_id = e.id
@@ -99,7 +102,7 @@ class RemessaService {
 	}
 	public function recuperarPorPlaca($limit, $offset, $placa) {
 		ini_set('default_charset', 'utf-8');
-		$query = "select r.id, r.opfiscal_id, op.id AS opid, op.opdescricao, op.prazo, op.sigla_op_fiscal, r.origem_id, r.destino_id, r.notafiscal, r.valor, r.emissao, r.entrada, r.retorno, r.ativo_id, e.nome_fantasia as origem, em.nome_fantasia as destino, a.id AS idativo, a.descricao, a.placa, a.eam, a.chassi, a.ativo, s.status AS status FROM tb_remessa r  
+		$query = "select r.id, r.opfiscal_id, op.id AS opid, op.opdescricao, op.prazo, op.sigla_op_fiscal, r.origem_id, r.destino_id, r.notafiscal, r.chave_nfe_remessa, r.valor, r.emissao, r.entrada, r.retorno, r.ativo_id, e.nome_fantasia as origem, em.nome_fantasia as destino, a.id AS idativo, a.descricao, a.placa, a.eam, a.chassi, a.ativo, s.status AS status FROM tb_remessa r  
 			INNER JOIN tb_status AS s ON r.status_id = s.id
 				INNER JOIN tb_opfiscal AS op ON r.opfiscal_id = op.id
 				INNER JOIN tb_empresa AS e ON r.origem_id = e.id
@@ -120,7 +123,7 @@ class RemessaService {
 		print_r('conteudo service: '.$conteudo);
 		echo '</pre>';
 		/*ini_set('default_charset', 'utf-8');*/
-		$query = "select r.id, r.opfiscal_id, op.id AS opid, op.opdescricao, op.prazo, op.sigla_op_fiscal, r.origem_id, r.destino_id, r.notafiscal, r.valor, r.emissao, r.entrada, r.retorno, r.ativo_id, e.nome_fantasia as origem, em.nome_fantasia as destino, a.id AS idativo, a.descricao, a.placa, a.eam, a.chassi, a.ativo, a.bloqueio, s.status AS status FROM tb_remessa r  
+		$query = "select r.id, r.opfiscal_id, op.id AS opid, op.opdescricao, op.prazo, op.sigla_op_fiscal, r.origem_id, r.destino_id, r.notafiscal, r.chave_nfe_remessa, r.valor, r.emissao, r.entrada, r.retorno, r.ativo_id, e.nome_fantasia as origem, em.nome_fantasia as destino, a.id AS idativo, a.descricao, a.placa, a.eam, a.chassi, a.ativo, a.bloqueio, s.status AS status FROM tb_remessa r  
 			INNER JOIN tb_status AS s ON r.status_id = s.id
 			INNER JOIN tb_opfiscal AS op ON r.opfiscal_id = op.id
 			INNER JOIN tb_empresa AS e ON r.origem_id = e.id
@@ -134,7 +137,7 @@ class RemessaService {
 	}
 	public function recuperarTotalPorColuna($coluna, $conteudo) {
 		/*ini_set('default_charset', 'utf-8');*/ 
-		$query = "select r.id, r.opfiscal_id, op.id AS opid, op.opdescricao, op.prazo, op.sigla_op_fiscal, r.origem_id, r.destino_id, r.notafiscal, r.valor, r.emissao, r.entrada, r.retorno, r.ativo_id, e.nome_fantasia as origem, em.nome_fantasia as destino, a.id AS idativo, a.descricao, a.placa, a.eam, a.chassi, a.ativo, a.bloqueio, s.status AS status FROM tb_remessa r  
+		$query = "select r.id, r.opfiscal_id, op.id AS opid, op.opdescricao, op.prazo, op.sigla_op_fiscal, r.origem_id, r.destino_id, r.notafiscal, r.chave_nfe_remessa, r.valor, r.emissao, r.entrada, r.retorno, r.ativo_id, e.nome_fantasia as origem, em.nome_fantasia as destino, a.id AS idativo, a.descricao, a.placa, a.eam, a.chassi, a.ativo, a.bloqueio, s.status AS status FROM tb_remessa r  
 			INNER JOIN tb_status AS s ON r.status_id = s.id
 			INNER JOIN tb_opfiscal AS op ON r.opfiscal_id = op.id
 			INNER JOIN tb_empresa AS e ON r.origem_id = e.id
@@ -147,7 +150,7 @@ class RemessaService {
 	}	
 	public function recuperarPorMovStatus($tipoMov, $stRegistro) {
 		ini_set('default_charset', 'utf-8');
-		$query = "select r.id, r.opfiscal_id, op.id AS opid, op.opdescricao, op.prazo, op.sigla_op_fiscal, op.tipoMov, r.origem_id, r.destino_id, r.notafiscal, r.valor, r.emissao, r.entrada, r.retorno, r.ativo_id, e.nome_fantasia as origem, em.nome_fantasia as destino, a.id AS idativo, a.descricao, a.placa, a.eam, a.chassi, a.ativo, s.status AS status FROM tb_remessa r  
+		$query = "select r.id, r.opfiscal_id, op.id AS opid, op.opdescricao, op.prazo, op.sigla_op_fiscal, op.tipoMov, r.origem_id, r.destino_id, r.notafiscal, r.chave_nfe_remessa, r.valor, r.emissao, r.entrada, r.retorno, r.ativo_id, e.nome_fantasia as origem, em.nome_fantasia as destino, a.id AS idativo, a.descricao, a.placa, a.eam, a.chassi, a.ativo, s.status AS status FROM tb_remessa r  
 			INNER JOIN tb_status AS s ON r.status_id = s.id
 			INNER JOIN tb_opfiscal AS op ON r.opfiscal_id = op.id
 			INNER JOIN tb_empresa AS e ON r.origem_id = e.id
@@ -162,7 +165,7 @@ class RemessaService {
 	}
 	public function recuperarTodos($limit, $offset) {
 		ini_set('default_charset', 'utf-8');
-		$query = "select r.id, r.opfiscal_id, op.id AS opid, op.opdescricao, op.prazo, op.sigla_op_fiscal, op.tipoMov, r.origem_id, r.destino_id, r.notafiscal, r.valor, r.emissao, r.entrada, r.retorno, r.ativo_id, e.nome_fantasia as origem, em.nome_fantasia as destino, a.id AS idativo, a.descricao, a.placa, a.eam, a.chassi, a.ativo, s.status AS status FROM tb_remessa r  
+		$query = "select r.id, r.opfiscal_id, op.id AS opid, op.opdescricao, op.prazo, op.sigla_op_fiscal, op.tipoMov, r.origem_id, r.destino_id, r.notafiscal, r.chave_nfe_remessa, r.valor, r.emissao, r.entrada, r.retorno, r.ativo_id, e.nome_fantasia as origem, em.nome_fantasia as destino, a.id AS idativo, a.descricao, a.placa, a.eam, a.chassi, a.ativo, s.status AS status FROM tb_remessa r  
 			INNER JOIN tb_status AS s ON r.status_id = s.id
 			INNER JOIN tb_opfiscal AS op ON r.opfiscal_id = op.id
 			INNER JOIN tb_empresa AS e ON r.origem_id = e.id
@@ -176,19 +179,19 @@ class RemessaService {
 		return $stmt->fetchAll(PDO::FETCH_OBJ);
 	}
 	public function recuperarPorMovEeStatus($limit, $offset, $tipom, $st) {
-		$query = "select r.id, r.opfiscal_id, op.opdescricao, op.prazo, op.sigla_op_fiscal, r.origem_id, r.destino_id, r.notafiscal, r.valor, r.emissao, r.entrada, r.retorno, r.ativo_id, e.nome_fantasia as origem, em.nome_fantasia as destino, a.id AS idativo, a.descricao, a.placa, a.eam AS Eam, a.chassi, a.ativo, s.status AS status FROM tb_remessa r, tb_opfiscal op, tb_empresa e, tb_empresa em, tb_ativo a, tb_status s WHERE r.status_id = $st AND r.opfiscal_id = op.id AND r.origem_id = e.id AND r.destino_id = $tipom AND r.ativo_id = a.id AND r.status_id = s.id ORDER BY r.retorno, r.notafiscal, r.emissao, a.descricao limit $limit offset $offset";
+		$query = "select r.id, r.opfiscal_id, op.opdescricao, op.prazo, op.sigla_op_fiscal, r.origem_id, r.destino_id, r.notafiscal, r.chave_nfe_remessa, r.valor, r.emissao, r.entrada, r.retorno, r.ativo_id, e.nome_fantasia as origem, em.nome_fantasia as destino, a.id AS idativo, a.descricao, a.placa, a.eam AS Eam, a.chassi, a.ativo, s.status AS status FROM tb_remessa r, tb_opfiscal op, tb_empresa e, tb_empresa em, tb_ativo a, tb_status s WHERE r.status_id = $st AND r.opfiscal_id = op.id AND r.origem_id = e.id AND r.destino_id = $tipom AND r.ativo_id = a.id AND r.status_id = s.id ORDER BY r.retorno, r.notafiscal, r.emissao, a.descricao limit $limit offset $offset";
 		$stmt = $this->conexao->prepare($query);
 		$stmt->execute();
 		return $stmt->fetchAll(PDO::FETCH_OBJ);
 	}
 	public function recuperarPorMovSeStatus($limit, $offset, $tipom, $st) {
-		$query = "select r.id, r.opfiscal_id, op.opdescricao, op.prazo, op.sigla_op_fiscal, r.origem_id, r.destino_id, r.notafiscal, r.valor, r.emissao, r.entrada, r.retorno, r.ativo_id, e.nome_fantasia as origem, em.nome_fantasia as destino, a.id AS idativo, a.descricao, a.placa, a.eam AS Eam, a.chassi, a.ativo, s.status AS status FROM tb_remessa r, tb_opfiscal op, tb_empresa e, tb_empresa em, tb_ativo a, tb_status s WHERE r.status_id = $st AND r.opfiscal_id = op.id AND r.origem_id = $tipom AND r.destino_id = em.id AND r.ativo_id = a.id AND r.status_id = s.id ORDER BY r.retorno, r.notafiscal, r.emissao, a.descricao limit $limit offset $offset";
+		$query = "select r.id, r.opfiscal_id, op.opdescricao, op.prazo, op.sigla_op_fiscal, r.origem_id, r.destino_id, r.notafiscal, r.chave_nfe_remessa, r.valor, r.emissao, r.entrada, r.retorno, r.ativo_id, e.nome_fantasia as origem, em.nome_fantasia as destino, a.id AS idativo, a.descricao, a.placa, a.eam AS Eam, a.chassi, a.ativo, s.status AS status FROM tb_remessa r, tb_opfiscal op, tb_empresa e, tb_empresa em, tb_ativo a, tb_status s WHERE r.status_id = $st AND r.opfiscal_id = op.id AND r.origem_id = $tipom AND r.destino_id = em.id AND r.ativo_id = a.id AND r.status_id = s.id ORDER BY r.retorno, r.notafiscal, r.emissao, a.descricao limit $limit offset $offset";
 		$stmt = $this->conexao->prepare($query);
 		$stmt->execute();
 		return $stmt->fetchAll(PDO::FETCH_OBJ);
 	}
 	public function recuperarTotalExcel($limit, $offset) {
-		$query = "select r.id, r.opfiscal_id, op.opdescricao, op.prazo, op.sigla_op_fiscal, r.origem_id, r.destino_id, r.notafiscal, r.valor, r.emissao, r.entrada, r.retorno, r.ativo_id, e.nome_fantasia as origem, em.nome_fantasia as destino, a.id AS idativo, a.descricao, a.placa, a.eam AS Eam, a.chassi, a.ativo, s.status AS status FROM tb_remessa r, tb_opfiscal op, tb_empresa e, tb_empresa em, tb_ativo a, tb_status s WHERE r.status_id = $st AND r.opfiscal_id = op.id AND r.origem_id = e.id AND r.destino_id = em.id AND r.ativo_id = a.id AND r.status_id = s.id ORDER BY r.retorno, r.notafiscal, r.emissao, a.descricao limit $limit offset $offset";
+		$query = "select r.id, r.opfiscal_id, op.opdescricao, op.prazo, op.sigla_op_fiscal, r.origem_id, r.destino_id, r.notafiscal, r.chave_nfe_remessa, r.valor, r.emissao, r.entrada, r.retorno, r.ativo_id, e.nome_fantasia as origem, em.nome_fantasia as destino, a.id AS idativo, a.descricao, a.placa, a.eam AS Eam, a.chassi, a.ativo, s.status AS status FROM tb_remessa r, tb_opfiscal op, tb_empresa e, tb_empresa em, tb_ativo a, tb_status s WHERE r.status_id = $st AND r.opfiscal_id = op.id AND r.origem_id = e.id AND r.destino_id = em.id AND r.ativo_id = a.id AND r.status_id = s.id ORDER BY r.retorno, r.notafiscal, r.emissao, a.descricao limit $limit offset $offset";
 		$stmt = $this->conexao->prepare($query);
 		$stmt->execute();
 		return $stmt->fetchAll(PDO::FETCH_OBJ);
@@ -217,7 +220,7 @@ class RemessaService {
 				INNER JOIN tb_ativo ON tb_remessa.ativo_id = tb_ativo.id
 			WHERE
     			tb_remessa.origem_id = $empresa AND tb_remessa.status_id = $status";*/
-		$query = "select r.id, r.opfiscal_id, r.notafiscal, r.valor, r.emissao, r.entrada, r.ativo_id, r.retorno, r.origem_id, r.destino_id, r.status_id, s.id AS sid, s.status, op.opdescricao, e.id AS Eempresa, e.nome_fantasia AS origem, em.id AS Emempresa, em.nome_fantasia destino, a.id AS ativo, a.descricao, a.placa, a.chassi FROM tb_remessa r
+		$query = "select r.id, r.opfiscal_id, r.notafiscal, r.valor, r.emissao, r.chave_nfe_remessa, r.entrada, r.ativo_id, r.retorno, r.origem_id, r.destino_id, r.status_id, s.id AS sid, s.status, op.opdescricao, e.id AS Eempresa, e.nome_fantasia AS origem, em.id AS Emempresa, em.nome_fantasia destino, a.id AS ativo, a.descricao, a.placa, a.chassi FROM tb_remessa r
 				INNER JOIN tb_status AS s ON r.status_id = s.id
 				INNER JOIN tb_opfiscal AS op ON r.opfiscal_id = op.id
 				INNER JOIN tb_empresa AS e ON r.origem_id = e.id
@@ -239,7 +242,7 @@ class RemessaService {
 				INNER JOIN tb_ativo ON tb_remessa.ativo_id = tb_ativo.id
 			WHERE
     			tb_remessa.destino_id = $empresa AND tb_remessa.status_id = $status";*/
-		$query = "select r.id, r.opfiscal_id, r.notafiscal, r.valor, r.emissao, r.entrada, r.ativo_id, r.retorno, r.origem_id, r.destino_id, r.status_id, s.id AS sid, s.status, op.opdescricao, e.id AS Eempresa, e.nome_fantasia AS origem, em.id AS Emempresa, em.nome_fantasia destino, a.id AS ativo, a.descricao, a.placa, a.chassi FROM tb_remessa r
+		$query = "select r.id, r.opfiscal_id, r.notafiscal, r.chave_nfe_remessa, r.valor, r.emissao, r.entrada, r.ativo_id, r.retorno, r.origem_id, r.destino_id, r.status_id, s.id AS sid, s.status, op.opdescricao, e.id AS Eempresa, e.nome_fantasia AS origem, em.id AS Emempresa, em.nome_fantasia destino, a.id AS ativo, a.descricao, a.placa, a.chassi FROM tb_remessa r
 				INNER JOIN tb_status AS s ON r.status_id = s.id
 				INNER JOIN tb_opfiscal AS op ON r.opfiscal_id = op.id
 				INNER JOIN tb_empresa AS e ON r.origem_id = e.id
@@ -253,7 +256,7 @@ class RemessaService {
 		return $stmt->fetchAll(PDO::FETCH_OBJ);
 	}
 	public function reportpdfAll() {
-		$query = "select r.id, r.opfiscal_id, r.notafiscal, r.valor, r.emissao, r.entrada, r.ativo_id, r.retorno, r.origem_id, r.destino_id, r.status_id, s.id AS sid, s.status, op.opdescricao, e.id AS Eempresa, e.nome_fantasia AS origem, em.id AS Emempresa, em.nome_fantasia destino, a.id AS ativo, a.descricao, a.placa, a.chassi FROM tb_remessa r
+		$query = "select r.id, r.opfiscal_id, r.notafiscal, r.chave_nfe_remessa, r.valor, r.emissao, r.entrada, r.ativo_id, r.retorno, r.origem_id, r.destino_id, r.status_id, s.id AS sid, s.status, op.opdescricao, e.id AS Eempresa, e.nome_fantasia AS origem, em.id AS Emempresa, em.nome_fantasia destino, a.id AS ativo, a.descricao, a.placa, a.chassi FROM tb_remessa r
 				INNER JOIN tb_status AS s ON r.status_id = s.id
 				INNER JOIN tb_opfiscal AS op ON r.opfiscal_id = op.id
 				INNER JOIN tb_empresa AS e ON r.origem_id = e.id
@@ -267,7 +270,7 @@ class RemessaService {
 		return $stmt->fetchAll(PDO::FETCH_OBJ);
 	} 
 	public function reportcsv() {
-		$query = "select r.id, r.opfiscal_id, r.notafiscal, r.valor, r.emissao, r.entrada, r.ativo_id, r.retorno, r.origem_id, r.destino_id, r.status_id, s.id AS sid, s.status, op.opdescricao, e.id AS Eempresa, e.nome_fantasia AS origem, em.id AS Emempresa, em.nome_fantasia destino, a.id AS ativo, a.descricao, a.placa, a.chassi FROM tb_remessa r
+		$query = "select r.id, r.opfiscal_id, r.notafiscal, r.chave_nfe_remessa, r.valor, r.emissao, r.entrada, r.ativo_id, r.retorno, r.origem_id, r.destino_id, r.status_id, s.id AS sid, s.status, op.opdescricao, e.id AS Eempresa, e.nome_fantasia AS origem, em.id AS Emempresa, em.nome_fantasia destino, a.id AS ativo, a.descricao, a.placa, a.chassi FROM tb_remessa r
 				INNER JOIN tb_status AS s ON r.status_id = s.id
 				INNER JOIN tb_opfiscal AS op ON r.opfiscal_id = op.id
 				INNER JOIN tb_empresa AS e ON r.origem_id = e.id
@@ -356,10 +359,11 @@ class RemessaService {
 	}
 
 	public function atualizar() {
-		$query = 'update tb_remessa set opfiscal_id =:opfiscal_id, notafiscal = :notafiscal, valor =:valor, emissao =:emissao, entrada =:entrada, ativo_id =:ativo_id, origem_id =:origem_id, destino_id =:destino_id, retorno =:retorno where id = :id';
+		$query = 'update tb_remessa set opfiscal_id =:opfiscal_id, notafiscal = :notafiscal, chave_nfe_remessa = :chave_nfe_remessa, valor =:valor, emissao =:emissao, entrada =:entrada, ativo_id =:ativo_id, origem_id =:origem_id, destino_id =:destino_id, retorno =:retorno where id = :id';
 		$stmt = $this->conexao->prepare($query);
 		$stmt->bindValue(':opfiscal_id', $this->opfiscal_id->__get('opfiscal_id'));
 		$stmt->bindValue(':notafiscal', $this->notafiscal->__get('notafiscal'));
+		$stmt->bindValue(':chave_nfe_remessa', $this->chave_nfe_remessa->__get('chave_nfe_remessa'));
 		$stmt->bindValue(':valor', $this->valor->__get('valor'));
 		$stmt->bindValue(':emissao', $this->emissao->__get('emissao'));
 		$stmt->bindValue(':entrada', $this->entrada->__get('entrada'));

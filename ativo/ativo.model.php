@@ -8,6 +8,7 @@ class ativo {
 	private $placa;
 	private $chassi;
 	private $empresa_id;
+	private $categoria_id;
 	private $bloqueio;
 
 	public function __get($atributo) {
